@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>My Requests</title>
+
+<style>
+
+body{
+font-family:Arial,sans-serif;
+background:#f4f7fc;
+padding:30px;
+}
+
+h1{
+text-align:center;
+color:#2563eb;
+margin-bottom:30px;
+}
+
+.request-card{
+background:white;
+padding:20px;
+margin-bottom:15px;
+border-radius:10px;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.pending{
+color:orange;
+font-weight:bold;
+}
+
+.accepted{
+color:green;
+font-weight:bold;
+}
+
+.rejected{
+color:red;
+font-weight:bold;
+}
+
+button{
+padding:10px 15px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:5px;
+cursor:pointer;
+margin-top:10px;
+margin-right:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>🤝 Collaboration Requests</h1>
+
+<div id="requests"></div>
+
+<script>
+
+const token =
+localStorage.getItem("token");
+
+async function loadRequests(){
+
+const res = await fetch(
+"/requests",
+{
+headers:{
+"Authorization":
+"Bearer " + token
+}
+});
+
+const data =
+await res.json();
+
+const container =
+document.getElementById("requests");
+
+container.innerHTML = "";
+
+data.requests.forEach(req => {
+
+let statusClass = "";
+
+if(req.status === "Accepted"){
+statusClass = "accepted";
+}
+else if(req.status === "Rejected"){
+statusClass = "rejected";
+}
+else{
+statusClass = "pending";
+}
+
+container.innerHTML += `
+
+<div class="request-card">
+
+<p>
+<b>From:</b>
+${req.from_user}
+</p>
+
+<p>
+<b>To:</b>
+${req.to_user}
+</p>
+
+<p>
+<b>Message:</b>
+${req.message}
+</p>
+
+<p class="${statusClass}">
+Status:
+${req.status}
+</p>
+
+${
+req.status === "Pending"
+?
+
+`
+<button onclick="acceptRequest('${req._id}')">
+Accept
+</button>
+
+<button onclick="rejectRequest('${req._id}')">
+Reject
+</button>
+`
+
+:
+
+""
+}
+
+</div>
+
+`;
+
+});
+
+}
+
+async function acceptRequest(id){
+
+await fetch(
+"/accept-request/" + id,
+{
+method:"PUT",
+headers:{
+"Authorization":
+"Bearer " + token
+}
+});
+
+loadRequests();
+
+}
+
+async function rejectRequest(id){
+
+await fetch(
+"/reject-request/" + id,
+{
+method:"PUT",
+headers:{
+"Authorization":
+"Bearer " + token
+}
+});
+
+loadRequests();
+
+}
+
+loadRequests();
+
+</script>
+
+</body>
+</html>

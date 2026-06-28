@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Create Collaboration Post</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f4f7fc;
+}
+
+.navbar{
+background:white;
+padding:15px 40px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo{
+font-size:28px;
+font-weight:bold;
+color:#2563eb;
+}
+
+.container{
+width:700px;
+margin:40px auto;
+background:white;
+padding:30px;
+border-radius:15px;
+box-shadow:0 2px 15px rgba(0,0,0,0.1);
+}
+
+h1{
+text-align:center;
+margin-bottom:20px;
+color:#2563eb;
+}
+
+input,
+textarea,
+select{
+width:100%;
+padding:12px;
+margin-top:12px;
+border:1px solid #ddd;
+border-radius:8px;
+}
+
+textarea{
+height:120px;
+resize:none;
+}
+
+button{
+width:100%;
+padding:14px;
+margin-top:20px;
+border:none;
+border-radius:8px;
+background:#2563eb;
+color:white;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+
+<div class="logo">
+Creator Hub
+</div>
+
+</div>
+
+<div class="container">
+
+<h1>🚀 Create Collaboration Opportunity</h1>
+
+<input
+type="text"
+id="title"
+placeholder="Project Title">
+
+<select id="required_skill">
+
+<option value="">
+Select Required Skill
+</option>
+
+<option>
+Video Editor
+</option>
+
+<option>
+Graphic Designer
+</option>
+
+<option>
+Thumbnail Designer
+</option>
+
+<option>
+Web Developer
+</option>
+
+<option>
+Content Writer
+</option>
+
+<option>
+Social Media Manager
+</option>
+
+</select>
+
+<input
+type="number"
+id="budget"
+placeholder="Budget (₹)">
+
+<input
+type="date"
+id="deadline">
+
+<input
+type="text"
+id="image"
+placeholder="Project Image URL (Optional)">
+
+<textarea
+id="description"
+placeholder="Describe your project and collaboration requirements">
+</textarea>
+
+<button onclick="createPost()">
+Post Opportunity
+</button>
+
+</div>
+
+<script>
+
+async function createPost(){
+
+const token =
+localStorage.getItem("token");
+
+if(!token){
+
+alert("Login Required");
+
+window.location.href =
+"/login-page";
+
+return;
+}
+
+const data = {
+
+caption:
+document.getElementById("title").value,
+
+description:
+document.getElementById("description").value,
+
+required_skill:
+document.getElementById("required_skill").value,
+
+budget:
+document.getElementById("budget").value,
+
+deadline:
+document.getElementById("deadline").value,
+
+image:
+document.getElementById("image").value
+
+};
+
+const res = await fetch(
+"/create-post",
+{
+method:"POST",
+
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+token
+},
+
+body:JSON.stringify(data)
+
+});
+
+const result =
+await res.json();
+
+alert(result.message);
+
+if(res.ok){
+
+window.location.href =
+"/dashboard";
+
+}
+
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Find Creators</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f4f7fc;
+}
+
+.navbar{
+background:white;
+padding:15px 40px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo{
+font-size:28px;
+font-weight:bold;
+color:#2563eb;
+}
+
+.menu a{
+text-decoration:none;
+color:#333;
+margin-left:20px;
+font-weight:bold;
+}
+
+.container{
+width:90%;
+margin:30px auto;
+}
+
+.title{
+text-align:center;
+margin-bottom:20px;
+color:#2563eb;
+}
+
+.search{
+width:100%;
+padding:12px;
+border-radius:8px;
+border:1px solid #ddd;
+margin-bottom:25px;
+}
+
+#creators{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+gap:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:15px;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-5px);
+}
+
+.profile-img{
+width:90px;
+height:90px;
+border-radius:50%;
+object-fit:cover;
+border:3px solid #2563eb;
+margin-bottom:10px;
+}
+
+.card h2{
+color:#2563eb;
+margin-bottom:10px;
+}
+
+.card p{
+margin:8px 0;
+}
+
+.badge{
+display:inline-block;
+padding:6px 12px;
+background:#2563eb;
+color:white;
+border-radius:20px;
+font-size:12px;
+margin-bottom:10px;
+}
+
+.btn{
+width:100%;
+padding:10px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+margin-top:10px;
+}
+
+.connect{
+background:#2563eb;
+color:white;
+}
+
+.portfolio{
+background:#10b981;
+color:white;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+
+<div class="logo">
+Creator Hub
+</div>
+
+<div class="menu">
+<a href="/dashboard">Dashboard</a>
+<a href="/create-profile-page">Profile</a>
+<a href="/create-post-page">Posts</a>
+</div>
+
+</div>
+
+<div class="container">
+
+<h1 class="title">
+🔥 Find Collaborators
+</h1>
+
+<input
+type="text"
+id="search"
+class="search"
+placeholder="Search by skill, city or profession..."
+onkeyup="searchCreators()">
+
+<div id="creators"></div>
+
+</div>
+
+<script>
+
+const token = localStorage.getItem("token");
+
+if(!token){
+window.location.href="/login-page";
+}
+
+let allProfiles=[];
+
+async function loadCreators(){
+
+const res = await fetch("/profiles",{
+
+headers:{
+"Authorization":"Bearer "+token
+}
+
+});
+
+const data = await res.json();
+
+allProfiles = data.profiles;
+
+displayCreators(allProfiles);
+}
+
+function displayCreators(profiles){
+
+const creatorsDiv =
+document.getElementById("creators");
+
+creatorsDiv.innerHTML="";
+
+profiles.forEach(profile=>{
+
+const match =
+Math.floor(Math.random()*20)+80;
+
+creatorsDiv.innerHTML += `
+
+<div class="card">
+
+<img
+class="profile-img"
+src="${
+profile.profile_image ||
+'https://via.placeholder.com/90'
+}">
+
+<div class="badge">
+${profile.category || 'Creator'}
+</div>
+
+<h2>
+${profile.name || 'Unknown'}
+</h2>
+
+<p>
+📧 ${profile.email || 'N/A'}
+</p>
+
+<p>
+📍 ${profile.city || 'N/A'}
+</p>
+
+<p>
+👥 Followers:
+${profile.followers || 0}
+</p>
+
+<p>
+🛠 Skills:
+${profile.skills || 'N/A'}
+</p>
+
+<p>
+🔥 Match Score:
+<b>${match}%</b>
+</p>
+
+<p>
+${profile.bio || ''}
+</p>
+
+<button
+class="btn connect"
+onclick="sendRequest('${profile.email}')">
+
+🤝 Connect
+
+</button>
+
+<button
+class="btn portfolio"
+onclick="openPortfolio('${profile.portfolio}')">
+
+📁 View Portfolio
+
+</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+function searchCreators(){
+
+const value =
+document.getElementById("search")
+.value
+.toLowerCase();
+
+const filtered =
+allProfiles.filter(profile =>
+
+(profile.skills || "")
+.toLowerCase()
+.includes(value)
+
+||
+
+(profile.city || "")
+.toLowerCase()
+.includes(value)
+
+||
+
+(profile.category || "")
+.toLowerCase()
+.includes(value)
+
+||
+
+(profile.name || "")
+.toLowerCase()
+.includes(value)
+
+);
+
+displayCreators(filtered);
+}
+
+function sendRequest(email){
+
+localStorage.setItem(
+"selected_creator",
+email
+);
+
+window.location.href =
+"/send-request-page";
+}
+
+function openPortfolio(link){
+
+if(link){
+window.open(link);
+}else{
+alert("Portfolio not available");
+}
+
+}
+
+loadCreators();
+
+</script>
+
+</body>
+</html>

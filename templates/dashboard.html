@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Creator Hub Dashboard</title>
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f4f7fc;
+}
+
+/* NAVBAR */
+
+.navbar{
+background:white;
+padding:15px 40px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo{
+font-size:28px;
+font-weight:bold;
+color:#2563eb;
+}
+
+.menu a{
+text-decoration:none;
+color:#333;
+margin-left:20px;
+font-weight:bold;
+}
+
+/* HERO */
+
+.hero{
+width:90%;
+margin:30px auto;
+padding:50px;
+border-radius:15px;
+background:linear-gradient(135deg,#2563eb,#7c3aed);
+color:white;
+}
+
+.hero h1{
+font-size:40px;
+margin-bottom:10px;
+}
+
+/* STATS */
+
+.stats{
+width:90%;
+margin:auto;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+}
+
+.stat-card{
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.stat-card h2{
+color:#2563eb;
+font-size:32px;
+}
+
+/* ACTIONS */
+
+.actions{
+width:90%;
+margin:30px auto;
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+}
+
+.actions button{
+padding:12px 20px;
+border:none;
+background:#2563eb;
+color:white;
+border-radius:8px;
+cursor:pointer;
+}
+
+/* POSTS */
+
+.posts{
+width:90%;
+margin:30px auto;
+}
+
+.posts h2{
+margin-bottom:20px;
+}
+
+.post-card{
+background:white;
+padding:20px;
+margin-bottom:20px;
+border-radius:12px;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.post-user{
+font-weight:bold;
+font-size:18px;
+}
+
+.post-caption{
+margin-top:10px;
+margin-bottom:10px;
+}
+
+.post-actions button{
+margin-right:10px;
+padding:8px 15px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+background:#2563eb;
+color:white;
+}
+
+.comment-box{
+margin-top:10px;
+width:100%;
+padding:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+
+<div class="logo">Creator Hub</div>
+
+<div class="menu">
+
+<a href="/dashboard">Home</a>
+<a href="/creators">Creators</a>
+<a href="/create-profile-page">Profile</a>
+<a href="/create-post-page">Create Post</a>
+<a href="#" onclick="logout()">Logout</a>
+
+</div>
+
+</div>
+
+<div class="hero">
+
+<h1>Creator Collaboration Hub 🚀</h1>
+
+<p>
+Find Editors, Designers, Developers and Collaborators
+for your next project.
+</p>
+
+</div>
+
+<div class="stats">
+
+<div class="stat-card">
+<h2 id="creatorCount">0</h2>
+<p>Creators</p>
+</div>
+
+<div class="stat-card">
+<h2 id="postCount">0</h2>
+<p>Posts</p>
+</div>
+
+<div class="stat-card">
+<h2 id="requestCount">0</h2>
+<p>Requests</p>
+</div>
+
+</div>
+
+<div class="actions">
+
+<button onclick="location.href='/create-profile-page'">Create Profile</button>
+<button onclick="location.href='/creators'">Find Creators</button>
+<button onclick="location.href='/create-post-page'">Create Post</button>
+
+</div>
+
+<div class="posts">
+
+<h2>🔥 Collaboration Posts</h2>
+
+<div id="posts"></div>
+
+</div>
+
+<script>
+
+const API_BASE = "https://creators-hub-1-rqxd.onrender.com";
+const token = localStorage.getItem("token");
+
+/* SAFE AUTH CHECK */
+if (!token || token === "undefined" || token === "null") {
+    window.location.href = "/login-page";
+}
+
+/* LOGOUT */
+function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "/login-page";
+}
+
+/* SAFE FETCH HELPER */
+async function safeFetch(url, options = {}) {
+    try {
+        const res = await fetch(url, options);
+
+        const text = await res.text();
+
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            console.log("SERVER NOT JSON:", text);
+            return null;
+        }
+
+    } catch (err) {
+        console.error("Network error:", err);
+        return null;
+    }
+}
+
+/* LOAD STATS */
+async function loadStats() {
+
+    const data = await safeFetch(`${API_BASE}/stats`, {
+        headers: {
+            "Authorization": "Bearer " + token
+        }
+    });
+
+    if (!data) return;
+
+    document.getElementById("creatorCount").innerText = data.creators || 0;
+    document.getElementById("postCount").innerText = data.posts || 0;
+    document.getElementById("requestCount").innerText = data.requests || 0;
+}
+
+/* LOAD POSTS */
+async function loadPosts() {
+
+    const data = await safeFetch(`${API_BASE}/posts`, {
+        headers: {
+            "Authorization": "Bearer " + token
+        }
+    });
+
+    if (!data || !data.posts) return;
+
+    const container = document.getElementById("posts");
+    container.innerHTML = "";
+
+    data.posts.reverse().forEach(post => {
+
+        container.innerHTML += `
+            <div class="post-card">
+
+                <div class="post-user">
+                    👤 ${post.user_email || "Unknown"}
+                </div>
+
+                <div class="post-caption">
+                    ${post.caption || ""}
+                </div>
+
+                <div>
+                    ❤️ ${post.likes ? post.likes.length : 0} Likes
+                </div>
+
+                <br>
+
+                <div class="post-actions">
+                    <button onclick="likePost('${post._id}')">
+                        Like
+                    </button>
+                </div>
+
+                <input class="comment-box" id="c-${post._id}" placeholder="Write a comment">
+
+                <button onclick="commentPost('${post._id}')">
+                    Comment
+                </button>
+
+                <div style="margin-top:10px;">
+                    ${(post.comments || []).map(c =>
+                        `<p><b>${c.user}</b>: ${c.text}</p>`
+                    ).join("")}
+                </div>
+
+            </div>
+        `;
+    });
+}
+
+/* LIKE POST */
+async function likePost(id) {
+    await fetch(`${API_BASE}/like-post/${id}`, {
+        method: "PUT",
+        headers: {
+            "Authorization": "Bearer " + token
+        }
+    });
+
+    loadPosts();
+}
+
+/* COMMENT POST */
+async function commentPost(id) {
+
+    const input = document.getElementById("c-" + id);
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    await fetch(`${API_BASE}/comment-post/${id}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ text })
+    });
+
+    input.value = "";
+    loadPosts();
+}
+
+/* INIT */
+loadStats();
+loadPosts();
+
+</script>
+
+</body>
+</html>

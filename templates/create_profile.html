@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Create Profile</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f4f7fc;
+}
+
+.navbar{
+background:white;
+padding:15px 40px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo{
+font-size:28px;
+font-weight:bold;
+color:#2563eb;
+}
+
+.container{
+width:600px;
+margin:40px auto;
+background:white;
+padding:30px;
+border-radius:15px;
+box-shadow:0 2px 15px rgba(0,0,0,0.1);
+}
+
+h1{
+text-align:center;
+margin-bottom:20px;
+color:#2563eb;
+}
+
+input,
+textarea,
+select{
+width:100%;
+padding:12px;
+margin-top:12px;
+border:1px solid #ddd;
+border-radius:8px;
+}
+
+textarea{
+height:100px;
+resize:none;
+}
+
+button{
+width:100%;
+padding:14px;
+margin-top:20px;
+border:none;
+border-radius:8px;
+background:#2563eb;
+color:white;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+
+<div class="logo">
+Creator Hub
+</div>
+
+</div>
+
+<div class="container">
+
+<h1>Create Creator Profile 🚀</h1>
+
+<input
+type="text"
+id="name"
+placeholder="Full Name">
+
+<input
+type="text"
+id="profile_image"
+placeholder="Profile Image URL">
+
+<select id="category">
+
+<option value="">
+Select Category
+</option>
+
+<option>
+YouTube Creator
+</option>
+
+<option>
+Video Editor
+</option>
+
+<option>
+Graphic Designer
+</option>
+
+<option>
+Web Developer
+</option>
+
+<option>
+Content Writer
+</option>
+
+<option>
+Instagram Influencer
+</option>
+
+</select>
+
+<input
+type="text"
+id="city"
+placeholder="City">
+
+<input
+type="text"
+id="skills"
+placeholder="Skills (comma separated)">
+
+<input
+type="number"
+id="followers"
+placeholder="Followers">
+
+<input
+type="text"
+id="portfolio"
+placeholder="Portfolio Link">
+
+<textarea
+id="bio"
+placeholder="Tell something about yourself">
+</textarea>
+
+<button onclick="createProfile()">
+Create Profile
+</button>
+
+</div>
+
+<script>
+
+async function createProfile(){
+
+const token =
+localStorage.getItem("token");
+
+if(!token){
+
+alert("Login Required");
+
+window.location.href=
+"/login-page";
+
+return;
+}
+
+const data = {
+
+name:
+document.getElementById("name").value,
+
+profile_image:
+document.getElementById("profile_image").value,
+
+category:
+document.getElementById("category").value,
+
+city:
+document.getElementById("city").value,
+
+skills:
+document.getElementById("skills").value,
+
+followers:
+document.getElementById("followers").value,
+
+portfolio:
+document.getElementById("portfolio").value,
+
+bio:
+document.getElementById("bio").value
+
+};
+
+const res = await fetch(
+"/create-profile",
+{
+method:"POST",
+
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+token
+},
+
+body:JSON.stringify(data)
+
+});
+
+const result =
+await res.json();
+
+alert(result.message);
+
+if(res.ok){
+
+window.location.href =
+"/creators";
+
+}
+
+}
+
+</script>
+
+</body>
+</html>

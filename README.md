@@ -23,7 +23,7 @@ Creator Hub is a social media platform that enables users to create profiles, sh
 
 ## 👩‍💻 Developer
 
-**Tanuja Bathineni**
+**Leela Gonuguntla**
 🎓 2nd Year Student
 💻 Learning Java & Data Structures and Algorithms
 🚀 Building strong problem-solving and full-stack development skills.
